@@ -1,0 +1,155 @@
+# Assignment 1: Design Your Own Class
+
+class Book:
+    def __init__(self, title, author, pages, genre):
+        self.title = title
+        self.author = author
+        self.pages = pages
+        self.genre = genre
+        self.current_page = 1
+        self.__reviews = []  
+        
+# Private attribute for encapsulation
+    
+    def read(self, num_pages):
+        """Read a specific number of pages"""
+        self.current_page += num_pages
+        if self.current_page > self.pages:
+            self.current_page = self.pages
+            return f"Finished reading {self.title}!"
+        return f"Now on page {self.current_page} of {self.title}"
+    
+    def add_review(self, review, rating):
+        """Add a review with rating (1-5)"""
+        if 1 <= rating <= 5:
+            self.__reviews.append({"review": review, "rating": rating})
+            return "Review added successfully"
+        return "Rating must be between 1 and 5"
+    
+    def get_average_rating(self):
+        """Calculate average rating from reviews"""
+        if not self.__reviews:
+            return "No reviews yet"
+        total = sum(r["rating"] for r in self.__reviews)
+        return round(total / len(self.__reviews), 1)
+    
+    def __str__(self):
+        return f"{self.title} by {self.author} ({self.genre}, {self.pages} pages)"
+
+
+# Adding inheritance layer
+class Ebook(Book):
+    def __init__(self, title, author, pages, genre, format_type, file_size):
+        # Call parent constructor
+        super().__init__(title, author, pages, genre)
+        self.format_type = format_type  # e.g., PDF, EPUB, MOBI
+        self.file_size = file_size  # in MB
+        self.is_downloaded = False
+        
+    def download(self):
+        """Download the ebook"""
+        self.is_downloaded = True
+        return f"{self.title} has been downloaded in {self.format_type} format"
+    
+    def change_format(self, new_format):
+        """Change ebook format"""
+        self.format_type = new_format
+        return f"Format changed to {new_format}"
+    
+# Activity 2 Polymorphism - overriding the parent's method 
+
+    def read(self, num_pages):
+        if not self.is_downloaded:
+            return f"Please download {self.title} first!"
+        return super().read(num_pages)  # Call the parent's read method
+    
+    def __str__(self):
+        return f"{super().__str__()} - {self.format_type} ({self.file_size} MB)"
+
+
+# Usage example
+novel = Book("The Great Gatsby", "F. Scott Fitzgerald", 180, "Classic")
+print(novel)
+print(novel.read(50))
+novel.add_review("A masterpiece!", 5)
+novel.add_review("Overrated", 3)
+print(f"Average rating: {novel.get_average_rating()}")
+
+digital_book = Ebook("Python Crash Course", "Eric Matthes", 544, "Programming", "PDF", 15.7)
+print(digital_book)
+print(digital_book.read(30))  # Should say download first
+print(digital_book.download())
+print(digital_book.read(30))  # Now should work
+print(digital_book.change_format("EPUB"))
+
+
+# Activity 2: Polymorphism Challenge
+
+class Vehicle:
+    def __init__(self, name, speed):
+        self.name = name
+        self.speed = speed
+    
+    def move(self):
+        return "Vehicle is moving"
+    
+    def describe(self):
+        return f"{self.name} can move at {self.speed} mph"
+
+
+class Car(Vehicle):
+    def __init__(self, name, speed, fuel_type):
+        super().__init__(name, speed)
+        self.fuel_type = fuel_type
+        self.wheels = 4
+    
+    def move(self):
+        return f"{self.name} is driving on the road 🚗"
+    
+    def honk(self):
+        return "Beep beep!"
+
+
+class Plane(Vehicle):
+    def __init__(self, name, speed, max_altitude):
+        super().__init__(name, speed)
+        self.max_altitude = max_altitude
+        
+    def move(self):
+        return f"{self.name} is flying through the sky ✈️"
+    
+    def take_off(self):
+        return "Taking off!"
+
+
+class Boat(Vehicle):
+    def __init__(self, name, speed, water_type):
+        super().__init__(name, speed)
+        self.water_type = water_type  # "fresh" or "salt"
+        
+    def move(self):
+        return f"{self.name} is sailing on the {self.water_type} water 🚢"
+    
+    def anchor(self):
+        return "Dropping anchor!"
+
+
+# Demonstrating polymorphism
+def start_journey(vehicle):
+    # Same function works for all vehicle types
+    return vehicle.move()
+
+
+# Create different vehicles
+tesla = Car("Tesla Model S", 155, "Electric")
+boeing = Plane("Boeing 747", 570, 45000)
+yacht = Boat("Luxury Yacht", 25, "salt")
+
+# Store in a list to demonstrate polymorphism
+vehicles = [tesla, boeing, yacht]
+
+# Call the same method on different objects
+for vehicle in vehicles:
+    print(start_journey(vehicle))
+    print(vehicle.describe())
+    print()
